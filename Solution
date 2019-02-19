@@ -1,0 +1,274 @@
+public class Solution
+    {
+        public object CreateCache()
+        {
+            //Cache acceptable values
+            HashSet<char> characterCache = new HashSet<char>();
+            char[] setterArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'e', '+', '-', '.' };
+            foreach (char c in setterArray)
+            {
+                characterCache.Add(c);
+            }
+
+            return characterCache;
+        }
+
+        public object CreateExponentCache()
+        {
+            //Cache acceptable exponents
+            HashSet<char> exponentCache = new HashSet<char>();
+            char[] setterArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+' };
+            foreach (char c in setterArray)
+            {
+                exponentCache.Add(c);
+            }
+
+            return exponentCache;
+        }
+
+        public bool ExponentIsValid(List<char> subArray)
+        {
+            //We will only make this cache when needed
+            HashSet<char> exponentCache = CreateExponentCache() as HashSet<char>;
+            int expLength = subArray.Count();
+            
+            if (subArray.Contains('-'))
+            {
+                if(expLength == 1)
+                    return false;
+              //  if(subArray[1] == '0' && expLength > 2)
+                //    return false;
+                if (LeadsWithSign(subArray))
+                    return false;
+            }
+            
+          //  if (subArray[0] == '0' && expLength > 1)
+            //    return false;
+
+            foreach (char c in subArray)
+            {
+                if (Checker(c, exponentCache))
+                    continue;
+                else
+                    return false;   
+            }
+            return true;
+        }
+
+        public bool Checker(char c, HashSet<char> cache)
+        {
+            if (cache.Contains(c))
+            {
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Character not present in cache: " + c);
+                return false;
+            }
+        }
+
+        public bool LeadsWithSign(List<char> mySubarray)
+        {
+            //Check if the lead character is a sign, update accordingly
+            if (mySubarray[0] != '-' && mySubarray[0] != '+' )
+            {
+                Console.WriteLine("Did not see the expected leading ± sign!");
+                return true;
+            }
+            
+            return false;
+        }
+
+        public bool TooManyPosNegSigns(char[] myArray)
+        {       
+            //Check number of ± signs - cannot logically have more than 2 IF e is present, else 1
+            int totalCount = 0;
+            int maxSigns = 1;
+            foreach (char c in myArray)
+            {
+                if (c == '-' || c == '+')
+                {
+                    totalCount++;
+                }
+            }
+            if(myArray.Contains('e'))
+            {
+                maxSigns = 2;
+            }
+            if (totalCount > maxSigns)
+            {
+                Console.WriteLine("Found more signs than are allowed!");
+                return true;
+            }
+
+            //We begin with the assumption that we have 1 ± sign, and it is for the exponent value
+            bool leadsWithSign = false;
+            int maxAllowed = 0;
+
+            //Check if the lead character is a sign, update accordingly
+            if (myArray[0] == '-' || myArray[0] == '+')
+            {
+                leadsWithSign = true;
+                maxAllowed = 1;
+            }
+
+            //If the total count is 2, the lead must be a sign
+            if (totalCount == 2 && !leadsWithSign)
+            {
+                Console.WriteLine("Did not see the expected leading ± sign!");
+                return true;
+            }
+
+            //Count the characters until we hit the exponent sign
+            int counter = 0;
+            foreach (char c in myArray)
+            {
+                
+                if (c == '-' || c == '+')
+                {
+                    counter++;
+                }
+                else if (c == 'e')
+                {
+                    return false;
+                }
+
+                if (counter > maxAllowed)
+                {
+                    Console.WriteLine("Too Many ± Signs!");
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TooManyPeriods(char[] myArray)
+        {
+            if (myArray[0] == '.' && myArray.Count() == 1)
+                return true;
+            
+            int periodCounter = 0;
+            foreach (char c in myArray)
+            {
+                if (c == '.')
+                {
+                    periodCounter++;
+                }
+                else if(c == 'e' && periodCounter == 0)
+                {
+                    Console.WriteLine("Period is in exponent");
+                    return true;
+                }
+            }
+            if (periodCounter > 1)
+            {
+                Console.WriteLine("Too many Periods!");
+                return true;
+            }
+            return false;
+        }
+            
+        public bool FalseExponentDeclaration(char[] myArray, int charCount)
+        {
+            if (myArray[0] == 'e')
+            {
+                Console.WriteLine("Number cannot begin with exponent sign!");
+                return true;
+            }
+            else if(myArray[charCount-1] == 'e')
+            {
+                Console.WriteLine("Number cannot end with exponent sign!");
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsNumber(string s)
+        {
+            //Create a cache for Characters and a more limited cache for exponent-valid options
+            HashSet<char> characterCache = CreateCache() as HashSet<char>;
+            
+            //Trim preceding and trailing spaces and get a character count
+            s = s.Trim(' ');
+            var myArray = s.ToCharArray();
+            int charCount = myArray.Count();
+
+
+            //----------Edge Cases-----------------
+
+            if(charCount == 0)
+                return false;
+            
+            if(charCount > 2)
+            {
+                if(myArray[0] == '.' && myArray[1] == 'e')
+                    return false;
+                if(myArray[0] == '-' && myArray[1] == 'e')
+                    return false;
+                if(myArray[charCount-1] == '-' | myArray[charCount-1] == '+')
+                    return false;          
+            }
+
+            if(charCount == 2)
+            {
+                if(myArray[0] == '-' && myArray[1] == '.')
+                    return false;
+            }
+            
+            
+            //If there are signs present in the array, check if there are too many, and validate positions
+            if (myArray.Contains('+') || myArray.Contains('-'))
+            {
+                if (TooManyPosNegSigns(myArray))
+                    return false;
+            }
+
+            //Ensure that there is a maximum of one period
+            if (myArray.Contains('.'))
+            {
+                if (TooManyPeriods(myArray))
+                    return false;
+            }
+
+            //Numbers cannot lead with an 'e' or end with an 'e'
+            if(myArray.Contains('e'))
+            {
+                if (FalseExponentDeclaration(myArray, charCount))
+                    return false;
+            }
+
+            //----------Edge Cases-----------------
+
+
+            //Check the characters
+            foreach (char c in myArray)
+            {
+                //If it could be an exponent, validate the subarray of the potential exponent characters
+                if (c == 'e')
+                {
+                    //Build the subarray as a list(more dynamic)
+                    List<char> exponent = new List<char>();
+                    for (int i = Array.IndexOf(myArray, c) + 1; i < charCount; i++)
+                    {
+                        exponent.Add(myArray[i]);
+                    }
+                    //Perform the secondary validation on the exponent list
+                    if (ExponentIsValid(exponent))
+                        return true;
+                    else
+                        return false;
+                }
+
+                //Check against normal character cache
+                else
+                {
+                    if (Checker(c, characterCache))
+                        continue;
+                    else
+                        return false;
+                }
+            }
+            return true;
+        }
+    }
