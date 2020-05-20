@@ -10,7 +10,7 @@ If this were in in-person whiteboard, I would have been able to ask.  In this ca
 I'm pretty pleased with the Obejct oriented nature of my solution, but I do want to revisit it and improve the run speed.
 
 I was quite pleased that my solution ran faster than 55% of solutions, and was more memory performant than 100% of solutions.
-Additioanlly at the time of this solution, the problem has a 13% solve rate from around 815k attempts, so I feel pretty good about getting to a workable solution.
+Additionally at the time of this solution, the problem has a 13% solve rate from around 815k attempts, so I feel pretty good about getting to a workable solution.
 
 # The Pitch:  
 Validate if a given string can be interpreted as a decimal number.
